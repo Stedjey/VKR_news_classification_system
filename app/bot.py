@@ -87,7 +87,7 @@ def get_emotion(text):
     return translated_label, result[0]['score']
 
 # --- Telegram bot ---
-API_TOKEN = '7692104667:AAHxWazqOrWLPkgN188jzt0eJ_tyDImgAIk'  # Замените на ваш токен от @BotFather
+API_TOKEN = 'bot_token'  
 bot = telebot.TeleBot(API_TOKEN)
 
 # Обработка команды /start
@@ -210,4 +210,5 @@ def handle_text(message):
 
 # Запуск бота
 print("Бот запущен.")
+
 bot.infinity_polling()
