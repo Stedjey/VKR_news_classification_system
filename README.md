@@ -137,7 +137,7 @@ VKR_news_classification/
 |
 |-- rubert_final_model/                   # Дообученная модель RuBERT и ее конфигурация
 |   |-- config.json                       # Конфигурация модели
-|   |-- model.safetensors                 # Весовые параметры модели
+|   |-- model.safetensors                 # Весовые параметры модели (не добавлен в GitHub из-за большого размера)
 |   |-- special_tokens_map.json           # Специальные токены
 |   |-- tokenizer.json                    # Файл токенизатора
 |   |-- tokenizer_config.json             # Конфигурация токенизатора
