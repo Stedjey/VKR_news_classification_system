@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+db/
+hf-cache/
+.DS_Store
+rubert_final_model/model.safetensors

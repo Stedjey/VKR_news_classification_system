@@ -1,0 +1,13 @@
+# Extra packages used in notebooks and research experiments
+fasttext-wheel==0.9.2
+tensorflow>=2.16,<2.19
+xgboost==3.0.0
+lightgbm==4.6.0
+catboost==1.2.8
+bertopic==0.17.0
+top2vec==1.0.36
+sentence-transformers==4.1.0
+hdbscan==0.8.40
+umap-learn==0.5.7
+openpyxl==3.1.5
+jupyterlab>=4.0,<5.0

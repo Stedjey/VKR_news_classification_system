@@ -1,15 +1,26 @@
-import telebot
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
-import numpy as np
-from scipy.special import softmax
+import os
 import pickle
 import sqlite3
-from transformers import pipeline
+from pathlib import Path
+
+import numpy as np
+import telebot
+import torch
+from scipy.special import softmax
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_DIR = BASE_DIR / "rubert_final_model"
+LABEL_ENCODER_PATH = BASE_DIR / "rubert_label_encoder.pkl"
+DB_DIR = Path(os.getenv("APP_DB_DIR", str(BASE_DIR / "db")))
+if not DB_DIR.is_absolute():
+    DB_DIR = BASE_DIR / DB_DIR
+DB_DIR.mkdir(parents=True, exist_ok=True)
+BOT_DB_PATH = DB_DIR / "bot_messages.db"
 
 # --- Создание БД при первом запуске ---
 def create_db():
-    conn = sqlite3.connect("bot_messages.db")
+    conn = sqlite3.connect(BOT_DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS messages (
@@ -32,10 +43,10 @@ def create_db():
 create_db()
 
 # --- Загрузка модели и энкодера ---
-model = AutoModelForSequenceClassification.from_pretrained("./rubert_final_model")
-tokenizer = AutoTokenizer.from_pretrained("./rubert_final_model")
+model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR))
+tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR))
 
-with open("rubert_label_encoder.pkl", "rb") as f:
+with open(LABEL_ENCODER_PATH, "rb") as f:
     le = pickle.load(f)
 
 # Загрузка модели для анализа настроений
@@ -87,7 +98,7 @@ def get_emotion(text):
     return translated_label, result[0]['score']
 
 # --- Telegram bot ---
-API_TOKEN = 'bot_token'  
+API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "bot_token").strip() or "bot_token"
 bot = telebot.TeleBot(API_TOKEN)
 
 # Обработка команды /start
@@ -98,7 +109,7 @@ def send_welcome(message):
 
 def save_to_db(user_id, username, text, category, confidence, keywords, emotion, sentiment):
     try:
-        conn = sqlite3.connect("bot_messages.db")
+        conn = sqlite3.connect(BOT_DB_PATH)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO messages (user_id, username, text, predicted_category, confidence, keywords, emotion, sentiment)
@@ -209,6 +220,8 @@ def handle_text(message):
         bot.reply_to(message, f"Произошла ошибка при классификации: {e}")
 
 # Запуск бота
-print("Бот запущен.")
-
-bot.infinity_polling()
+if API_TOKEN == "bot_token":
+    print("TELEGRAM_BOT_TOKEN не задан. Telegram-бот не будет запущен.")
+else:
+    print("Бот запущен.")
+    bot.infinity_polling()

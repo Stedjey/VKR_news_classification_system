@@ -1,17 +1,28 @@
-import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
-import numpy as np
-from scipy.special import softmax
+import os
 import pickle
-from transformers import pipeline
 import sqlite3
+from pathlib import Path
+
+import numpy as np
+import streamlit as st
+import torch
+from scipy.special import softmax
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_DIR = BASE_DIR / "rubert_final_model"
+LABEL_ENCODER_PATH = BASE_DIR / "rubert_label_encoder.pkl"
+DB_DIR = Path(os.getenv("APP_DB_DIR", str(BASE_DIR / "db")))
+if not DB_DIR.is_absolute():
+    DB_DIR = BASE_DIR / DB_DIR
+DB_DIR.mkdir(parents=True, exist_ok=True)
+STREAMLIT_DB_PATH = DB_DIR / "streamlit_messages.db"
 
 # Загрузка модели и энкодера
-model = AutoModelForSequenceClassification.from_pretrained("./rubert_final_model")
-tokenizer = AutoTokenizer.from_pretrained("./rubert_final_model")
+model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR))
+tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR))
 
-with open("rubert_label_encoder.pkl", "rb") as f:
+with open(LABEL_ENCODER_PATH, "rb") as f:
     le = pickle.load(f)
 
 # Загрузка модели для анализа настроений
@@ -108,7 +119,7 @@ def get_word_importance(text):
 # Функция для создания таблицы в БД (если она еще не существует)
 def create_table():
     try:
-        conn = sqlite3.connect("streamlit_messages.db")
+        conn = sqlite3.connect(STREAMLIT_DB_PATH)
         cursor = conn.cursor()
 
         # Запрос для создания таблицы
@@ -136,7 +147,7 @@ create_table()
 def save_to_db(text, category, confidence, keywords, emotion, sentiment):
     try:
         # Подключаемся к базе данных
-        conn = sqlite3.connect("streamlit_messages.db")
+        conn = sqlite3.connect(STREAMLIT_DB_PATH)
         cursor = conn.cursor()
         
         # Выполняем SQL запрос на вставку данных в таблицу

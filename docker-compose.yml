@@ -1,0 +1,17 @@
+services:
+  news-classifier:
+    container_name: news-classifier
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      APP_DB_DIR: /app/db
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      HF_HOME: /app/.cache/huggingface
+      TRANSFORMERS_CACHE: /app/.cache/huggingface
+    volumes:
+      - ./db:/app/db
+      - ./hf-cache:/app/.cache/huggingface
+    restart: unless-stopped

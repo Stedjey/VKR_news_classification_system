@@ -1,0 +1,17 @@
+# Runtime, inference and utility dependencies
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.13.1
+scikit-learn==1.6.1
+torch==2.7.0
+transformers==4.51.3
+safetensors==0.5.3
+streamlit==1.45.0
+pyTelegramBotAPI==4.27.0
+
+# Project scripts
+aiohttp>=3.9,<4.0
+beautifulsoup4>=4.12,<5.0
+datasets>=2.19,<3.0
+matplotlib==3.10.1
+seaborn==0.13.2
